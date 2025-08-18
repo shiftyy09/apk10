@@ -1,5 +1,4 @@
 name: Build iOS for ALTStore
-
 on:
   push:
     branches: [ main ]
@@ -10,29 +9,17 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.32.7'
-
       - name: Install dependencies
         run: flutter pub get
-
-      - name: Build iOS app (no codesign)
-        run: flutter build ios --release --no-codesign
-
-      - name: Create unsigned .ipa for ALTStore
-        run: |
-          cd ios
-          mkdir -p build/ipa/Payload
-          cp -r build/ios/iphoneos/Runner.app build/ipa/Payload/
-          cd build/ipa
-          zip -r Gymflow.ipa Payload
-          mv Gymflow.ipa ../../Gymflow.ipa
-
+      - name: Build IPA ad-hoc
+        run: flutter build ipa --export-method ad-hoc --no-codesign
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: Gymflow-ALTStore-IPA
-          path: ios/Gymflow.ipa
+          path: build/ios/ipa/Runner.ipa
+
