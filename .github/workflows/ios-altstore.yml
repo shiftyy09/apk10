@@ -3,7 +3,6 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
-
 jobs:
   build_ios_altstore:
     runs-on: macos-14
@@ -30,4 +29,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Gymflow-ALTStore-IPA
-          path: build/ios/ipa/Runner.ipa
+          path: "**/*.ipa"
