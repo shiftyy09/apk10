@@ -23,39 +23,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
         
-      - name: Archive with Xcode
-        run: |
-          cd ios
-          xcodebuild -workspace Runner.xcworkspace \
-            -scheme Runner \
-            -sdk iphoneos \
-            -configuration Release \
-            -archivePath ../build/ios/archive/Runner.xcarchive \
-            archive
-
-      - name: Export IPA
-        run: |
-          cd ios
-          cat > ExportOptions.plist << EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>ad-hoc</string>
-            <key>compileBitcode</key>
-            <false/>
-          </dict>
-          </plist>
-          EOF
-          xcodebuild -exportArchive \
-            -archivePath ../build/ios/archive/Runner.xcarchive \
-            -exportOptionsPlist ExportOptions.plist \
-            -exportPath ../build/ios/ipa
-
+      - name: Build IPA (ad-hoc, no codesign)
+        run: flutter build ipa --export-method ad-hoc --no-codesign
+        
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: Gymflow-ALTStore-IPA
           path: build/ios/ipa/Runner.ipa
-
