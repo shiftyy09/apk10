@@ -1,4 +1,5 @@
 name: Build iOS for ALTStore
+
 on:
   push:
     branches: [ main ]
@@ -6,54 +7,27 @@ on:
 
 jobs:
   build_ios_altstore:
-    runs-on: macos-latest
+    runs-on: macos-14
+
     steps:
       - uses: actions/checkout@v3
       
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.32.7'
-          
+          flutter-version: '3.22.2' # stabil verzió, ha neked kell más, írd át
+
+      - name: Set Xcode version
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.4'
+
       - name: Install dependencies
         run: flutter pub get
-        
-      - name: Set Xcode version to 15.4
-        run: sudo xcode-select -s /Applications/Xcode_15.4.app
-        
-      - name: Build iOS archive manually with explicit iOS 17 SDK
-        run: |
-          cd ios
-          xcodebuild -workspace Runner.xcworkspace \
-            -scheme Runner \
-            -sdk iphoneos17.0 \
-            -configuration Release \
-            -destination generic/platform=iOS \
-            -archivePath ../build/ios/archive/Runner.xcarchive \
-            IPHONEOS_DEPLOYMENT_TARGET=17.0 \
-            archive
-            
-      - name: Export IPA with ad-hoc method
-        run: |
-          cd ios
-          cat > ExportOptions.plist << EOF
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>method</key>
-            <string>ad-hoc</string>
-            <key>compileBitcode</key>
-            <false/>
-          </dict>
-          </plist>
-          EOF
-          
-          xcodebuild -exportArchive \
-            -archivePath ../build/ios/archive/Runner.xcarchive \
-            -exportOptionsPlist ExportOptions.plist \
-            -exportPath ../build/ios/ipa/
-            
+
+      - name: Build IPA (ad-hoc, no codesign)
+        run: flutter build ipa --export-method ad-hoc --no-codesign
+
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
