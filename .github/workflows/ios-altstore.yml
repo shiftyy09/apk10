@@ -25,15 +25,6 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-              - name: Export IPA
-        run: |
-          mkdir -p build/ios/ipa
-          xcodebuild -exportArchive \
-            -archivePath build/ios/archive/Runner.xcarchive \
-            -exportOptionsPlist ios/ExportOptions.plist \
-            -exportPath build/ios/ipa
-
-
       - name: Build IPA (ad-hoc, no codesign)
         run: flutter build ipa --export-method ad-hoc --no-codesign
 
