@@ -15,7 +15,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.2' # stabil verzió, ha neked kell más, írd át
+          flutter-version: '3.35.1'
 
       - name: Set Xcode version
         uses: maxim-lobanov/setup-xcode@v1
