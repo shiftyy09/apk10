@@ -2,7 +2,7 @@ name: Build iOS for AltStore
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -35,7 +35,8 @@ jobs:
           EOF
 
       - name: Build IPA (ad-hoc, no-codesign)
-        run: flutter build ipa --export-method ad-hoc --no-codesign
+        run: |
+          flutter build ipa --export-method ad-hoc --no-codesign
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
