@@ -2,7 +2,7 @@ name: Build iOS for AltStore
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -30,13 +30,28 @@ jobs:
             <dict>
               <key>method</key>
               <string>ad-hoc</string>
+              <key>compileBitcode</key>
+              <false/>
             </dict>
           </plist>
           EOF
 
-      - name: Build IPA (ad-hoc, no-codesign)
+      - name: Build iOS archive (force iOS 17 SDK)
         run: |
-          flutter build ipa --export-method ad-hoc --no-codesign
+          flutter build ios --release --no-codesign
+          xcodebuild -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -sdk iphoneos17.5 \
+            -configuration Release \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            archive
+
+      - name: Export IPA
+        run: |
+          xcodebuild -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportOptionsPlist ios/ExportOptions.plist \
+            -exportPath build/ios/ipa
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
