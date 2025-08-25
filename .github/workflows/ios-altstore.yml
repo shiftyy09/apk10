@@ -20,7 +20,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.1'  # kell a Dart ^3.8-hoz
+          flutter-version: '3.35.1'
 
       - name: Check Flutter
         run: flutter --version
@@ -28,11 +28,17 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build IPA (no codesign, ad-hoc)
-        run: flutter build ipa --export-method ad-hoc --no-codesign
-
+      - name: Build unsigned iOS app
+        run: flutter build ios --release --no-codesign
+        
+      - name: Create Payload folder and IPA
+        run: |
+          mkdir -p Payload
+          cp -r build/ios/iphoneos/Runner.app Payload/
+          zip -r Runner.ipa Payload/
+          
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: Gymflow-IPA
-          path: build/ios/ipa/Runner.ipa
+          path: Runner.ipa
