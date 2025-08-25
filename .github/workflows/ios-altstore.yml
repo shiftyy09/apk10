@@ -1,33 +1,44 @@
-name: Build iOS for ALTStore
+name: Build iOS for AltStore
+
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  build_ios_altstore:
-    runs-on: macos-14
+  build_ios:
+    runs-on: macos-latest
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.35.1'
-          
-      - name: Set Xcode version
-        uses: maxim-lobanov/setup-xcode@v1
-        with:
-          xcode-version: '15.4'
-          
+
       - name: Install dependencies
         run: flutter pub get
-        
-      - name: Build IPA (ad-hoc, no codesign)
+
+      - name: Create ExportOptions.plist
+        run: |
+          cat <<EOF > ios/ExportOptions.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+          "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+            <dict>
+              <key>method</key>
+              <string>ad-hoc</string>
+            </dict>
+          </plist>
+          EOF
+
+      - name: Build IPA (ad-hoc, no-codesign)
         run: flutter build ipa --export-method ad-hoc --no-codesign
-        
+
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Gymflow-ALTStore-IPA
+          name: Gymflow-IPA
           path: build/ios/ipa/Runner.ipa
