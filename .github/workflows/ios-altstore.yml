@@ -1,4 +1,4 @@
-name: Build iOS for AltStore
+name: Build Android APK
 
 on:
   push:
@@ -6,21 +6,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_ios:
-    runs-on: macos-15
+  build_android:
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Xcode 16
-        uses: maxim-lobanov/setup-xcode@v1
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          xcode-version: '16.4'
+          distribution: 'zulu'
+          java-version: '17'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.1'
+          flutter-version: '3.24.3'
 
       - name: Check Flutter
         run: flutter --version
@@ -28,17 +29,11 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Build unsigned iOS app
-        run: flutter build ios --release --no-codesign
-        
-      - name: Create Payload folder and IPA
-        run: |
-          mkdir -p Payload
-          cp -r build/ios/iphoneos/Runner.app Payload/
-          zip -r Runner.ipa Payload/
-          
-      - name: Upload IPA artifact
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Gymflow-IPA
-          path: Runner.ipa
+          name: Gymflow-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
